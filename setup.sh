@@ -126,3 +126,89 @@ echo "==========================================="
 echo "✅ SYSTEM READY 100%!"
 echo "👉 Untuk run: bash ~/start-superadmin.sh"
 echo "==========================================="
+
+#!/data/data/com.termux/files/usr/bin/bash
+
+echo "==========================================="
+echo "🚀 SUPERADMIN E-WALLET - FULL AUTO SETUP"
+echo "==========================================="
+
+# 1. Keperluan sistem
+echo "[1/10] 📦 Installing system packages..."
+pkg update -y && pkg install -y git nodejs curl nano
+
+# 2. Clone atau pull repo
+echo "[2/10] 🔁 Cloning or updating repo..."
+cd ~
+if [ -d "aswad-superadmin-ewallet" ]; then
+  cd aswad-superadmin-ewallet
+  git reset --hard
+  git pull
+else
+  git clone https://github.com/AswadXenOS/aswad-superadmin-ewallet.git
+  cd aswad-superadmin-ewallet
+fi
+
+# 3. Auto cipta fail backend
+echo "[3/10] 🧠 Creating backend files..."
+mkdir -p backend/data
+[ ! -f backend/data/db.json ] && echo '{}' > backend/data/db.json
+[ ! -f backend/data/audit.log ] && touch backend/data/audit.log
+[ ! -f backend/.env ] && echo "PORT=3001" > backend/.env
+
+# 4. Pasang backend
+echo "[4/10] ⚙️ Installing backend..."
+cd backend
+rm -rf node_modules package-lock.json
+npm install express bcryptjs sqlite dotenv
+cd ..
+
+# 5. Setup frontend jika tiada
+echo "[5/10] 💻 Setting up frontend..."
+if [ ! -d "frontend" ]; then
+  npm create vite@latest frontend -- --template react
+fi
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
+cd ..
+
+# 6. GPT CLI Bot setup
+echo "[6/10] 🤖 Setting up GPT CLI..."
+mkdir -p gpt-cli
+cd gpt-cli
+[ ! -f gpt.js ] && echo 'console.log("🧠 GPT CLI Bot running...")' > gpt.js
+rm -rf node_modules package-lock.json
+npm init -y
+npm install
+cd ..
+
+# 7. Start script auto
+echo "[7/10] 🧬 Creating start script..."
+cat > ~/start-superadmin.sh <<EOF
+#!/data/data/com.termux/files/usr/bin/bash
+cd ~/aswad-superadmin-ewallet/backend && nohup node index.js &
+cd ~/aswad-superadmin-ewallet/frontend && nohup npm run dev &
+cd ~/aswad-superadmin-ewallet/gpt-cli && nohup node gpt.js &
+EOF
+chmod +x ~/start-superadmin.sh
+
+# 8. GitHub config + push
+echo "[8/10] 🔐 GitHub push setup..."
+git config --global user.name "AswadXenOS"
+git config --global user.email "aswad@example.com"
+git remote set-url origin https://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@github.com/AswadXenOS/aswad-superadmin-ewallet.git
+git add .
+git commit -m "✅ Auto fixed & setup frontend + backend"
+git push -u origin main
+
+# 9. Run system (optional)
+echo "[9/10] ▶️ Auto running system..."
+bash ~/start-superadmin.sh
+
+# 10. Tamat
+echo "==========================================="
+echo "✅ SETUP & RUN SELESAI 100%!"
+echo "📂 Project Folder: ~/aswad-superadmin-ewallet"
+echo "▶️ Start semula dengan: bash ~/start-superadmin.sh"
+echo "==========================================="
