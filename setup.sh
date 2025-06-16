@@ -25,3 +25,98 @@ node -e "require('./backend/db').initDB().then(async()=>{const db=require('./bac
 echo "[5/5] Starting all services..." npx concurrently "cd backend && node index.js" "cd frontend && npm run dev -- --host" "cd telegram-bot && node bot.js"
 
 
+#!/bin/bash
+set -e
+
+PROJECT=aswad-superadmin-ewallet
+mkdir -p $PROJECT && cd $PROJECT
+
+echo "📁 [1/9] Cipta struktur folder..."
+mkdir -p backend frontend cli telegram-bot
+
+########################################
+# 1. BACKEND SETUP
+########################################
+echo "🧠 [2/9] Setup backend..."
+cat > backend/index.js <<EOF
+const express = require('express');
+const app = express();
+app.use(express.json());
+
+app.get('/', (req, res) => res.send('Backend Aktif'));
+app.listen(3000, () => console.log('✅ Backend running on port 3000'));
+EOF
+
+cat > backend/package.json <<EOF
+{
+  "name": "backend",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
+EOF
+
+########################################
+# 2. FRONTEND SETUP
+########################################
+echo "🌐 [3/9] Setup frontend..."
+cat > frontend/index.html <<EOF
+<!DOCTYPE html>
+<html>
+  <head><title>SuperAdmin UI</title></head>
+  <body><h1>Selamat datang ke UI SuperAdmin</h1></body>
+</html>
+EOF
+
+########################################
+# 3. TELEGRAM BOT SETUP
+########################################
+echo "🤖 [4/9] Setup telegram-bot..."
+cat > telegram-bot/bot.js <<EOF
+console.log('Bot Telegram aktif (simulasi)');
+EOF
+
+cat > telegram-bot/package.json <<EOF
+{
+  "name": "telegram-bot",
+  "main": "bot.js"
+}
+EOF
+
+########################################
+# 4. CLI SUPERADMIN
+########################################
+echo "💻 [5/9] Setup CLI..."
+cat > cli/superadmin-cli.js <<EOF
+console.log('CLI SuperAdmin Siap');
+EOF
+
+########################################
+# 5. AUTOSETUP SH FILE
+########################################
+echo "🔧 [6/9] Setup autosetup.sh..."
+cat > autosetup.sh <<'EOS'
+#!/bin/bash
+set -e
+
+echo "📦 Install backend..."
+cd backend && npm install && node index.js &
+cd ..
+
+echo "📦 Sedia frontend..."
+echo "Buka frontend/index.html di browser"
+
+cd telegram-bot && echo "▶ Mula bot telegram..." && node bot.js &
+cd ..
+
+echo "💻 CLI: node cli/superadmin-cli.js"
+echo "✅ SEMUA SELESAI"
+EOS
+chmod +x autosetup.sh
+
+########################################
+# 6. AKHIRI
+########################################
+echo "🚀 [7/9] Siap! Anda boleh jalankan:"
+echo "cd $PROJECT && bash autosetup.sh"
