@@ -1,18 +1,28 @@
-const readline = require('readline');
-const { Configuration, OpenAIApi } = require('openai');
-require('dotenv').config({ path: '../.env' });
+import OpenAI from 'openai';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-const openai = new OpenAIApi(new Configuration({ apiKey: process.env.OPENAI_API_KEY }));
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
-(async () => {
-  while (true) {
-    rl.question("🤖 Prompt: ", async (q) => {
-      const res = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: q }],
-      });
-      console.log("💬", res.data.choices[0].message.content);
+const readline = await import('readline');
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+console.log("🤖 GPT CLI sudah siap. Tulis soalan...");
+
+rl.on('line', async (input) => {
+  try {
+    const chat = await openai.chat.completions.create({
+      messages: [{ role: 'user', content: input }],
+      model: 'gpt-4o',
     });
+
+    console.log("GPT:", chat.choices[0].message.content);
+  } catch (err) {
+    console.error("❌ Error:", err.message);
   }
-})();
+});
