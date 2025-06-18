@@ -1,0 +1,4 @@
+module.exports = {
+  BOT_TOKEN: '7731637512:AAG6MnAuHWkSQjvIQ3XQpKuS_k5fy8vAgt8',
+  SUPERADMIN_ID: 7970381824
+};

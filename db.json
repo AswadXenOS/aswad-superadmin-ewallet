@@ -1,0 +1,10 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "superadmin",
+      "wallet": 100000
+    }
+  ],
+  "transactions": []
+}
